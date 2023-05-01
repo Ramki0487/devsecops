@@ -8,7 +8,7 @@ pipeline {
               archive 'target/*.jar' //so that they can be downloaded later
             }
         }   
-       stage('Maven unit test') {
+       stage('Maven test') {
             steps {
               sh "mvn test"
               }
@@ -18,7 +18,12 @@ pipeline {
                   jacoco execPattern: 'target/jacoco.exec'
                 }
               }
-        }    
+        }
+        stage(docker build){
+          steps {
+
+          }
+        }  
     }
 }
 
