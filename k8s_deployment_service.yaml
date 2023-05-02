@@ -16,7 +16,7 @@ spec:
         app: devsecops
     spec:
       containers:
-      - image: replace
+      - image: ramki0610/numeric-app
         name: devsecops-container
 ---
 apiVersion: v1
