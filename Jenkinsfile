@@ -33,6 +33,7 @@ pipeline {
           steps {
             withKubeConfig([credentialsId: 'kubeconfig']){
               sh "sed -i '#replace#ramki0610/numeric-app:${GIT_COMMIT}#g' k8s_deployment_service.yaml"
+              cat k8s_deployment_service.yaml
               sh "kubectl apply -f k8s_deployment_service.yaml"
               sh "kubectl get po"
             }
