@@ -20,7 +20,7 @@ pipeline {
               }
         }
 
-        stage(sonarqube-SAST){
+        stage('sonarqube-SAST'){
           steps {
                   sh "mvn clean verify sonar:sonar \
                   -Dsonar.projectKey=numeric-app \
