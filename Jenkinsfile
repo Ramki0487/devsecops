@@ -22,12 +22,15 @@ pipeline {
 
         stage('sonarqube-SAST'){
           steps {
-                  sh "mvn clean verify sonar:sonar \
-                  -Dsonar.projectKey=numeric-app \
-                  -Dsonar.projectName='numeric-app' \
-                  -Dsonar.host.url=http://devsecopsk8s.eastus.cloudapp.azure.com:9000 \
-                  -Dsonar.token=sqp_04012b21d9370b294a9da173c99f741866d982a1"
-          } 
+                  withSonarQubeEnv('sonartoken'){
+                    sh "mvn sonar:sonar -Dsonar.projectKey=numeric-app -Dsonar.host.url=http://devsecopsk8s.eastus.cloudapp.azure.com:9000/"
+                  }
+                  timeout(time: 2, unit: 'MINUTES') {
+                    script {
+                      waitForQualityGate abortPipeline: true
+                    }
+                  }
+          }     
         }
         stage('docker build') {
           steps {
