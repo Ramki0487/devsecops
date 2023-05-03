@@ -19,6 +19,16 @@ pipeline {
                 }
               }
         }
+
+        stage(sonarqube-SAST){
+          steps{
+            sh 'mvn clean verify sonar:sonar \
+                  -Dsonar.projectKey=numeric-app \
+                  -Dsonar.projectName='numeric-app' \
+                  -Dsonar.host.url=http://devsecopsk8s.eastus.cloudapp.azure.com:9000 \
+                  -Dsonar.token=sqp_04012b21d9370b294a9da173c99f741866d982a1'
+          }
+        }
         stage('docker build') {
           steps {
             withDockerRegistry([credentialsId: "dockerhub", url: ""]){
@@ -29,15 +39,15 @@ pipeline {
 
           }
         }
-        stage('kubernetes deployment'){
-          steps {
-            withKubeConfig([credentialsId: 'kubeconfig']){
-              sh "sed -i 's#replace#ramki0610/numeric-app:${GIT_COMMIT}#g' k8s_deployment_service.yaml"
-              sh 'cat k8s_deployment_service.yaml'
-              sh "kubectl apply -f k8s_deployment_service.yaml"
-              sh "kubectl get po"
+          stage('kubernetes deployment'){
+            steps {
+              withKubeConfig([credentialsId: 'kubeconfig']){
+                sh "sed -i 's#replace#ramki0610/numeric-app:${GIT_COMMIT}#g' k8s_deployment_service.yaml"
+                sh 'cat k8s_deployment_service.yaml'
+                sh "kubectl apply -f k8s_deployment_service.yaml"
+                sh "kubectl get po"
+              }
             }
-          }
         } 
     }
 }
