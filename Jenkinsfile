@@ -1,13 +1,13 @@
 pipeline {
   agent any
 
-  stages {
-      stage('Build Artifact') {
-            steps {
-              sh "mvn clean package -DskipTests=true"
-              archive 'target/*.jar' //so that they can be downloaded later
-            }
-        }   
+      stages {
+          stage('Build Artifact') {
+                steps {
+                  sh "mvn clean package -DskipTests=true"
+                  archive 'target/*.jar' //so that they can be downloaded later
+                }
+            }   
        stage('Maven test') {
             steps {
               sh "mvn test"
@@ -20,17 +20,28 @@ pipeline {
               }
         }
 
-        stage('sonarqube-SAST'){
+        // stage('sonarqube-SAST'){
+        //   steps {
+        //           withSonarQubeEnv('sonarserver') {
+        //             sh "mvn sonar:sonar -Dsonar.projectKey=numeric-app -Dsonar.host.url=http://devsecopsk8s.eastus.cloudapp.azure.com:9000/"
+        //           }
+        //           timeout(time: 2, unit: 'MINUTES') {
+        //             script {
+        //               waitForQualityGate abortPipeline: true
+        //             }
+        //           }
+        //   }     
+        // }
+
+        stage('dependency check'){
           steps {
-                  withSonarQubeEnv('sonarserver') {
-                    sh "mvn sonar:sonar -Dsonar.projectKey=numeric-app -Dsonar.host.url=http://devsecopsk8s.eastus.cloudapp.azure.com:9000/"
-                  }
-                  timeout(time: 2, unit: 'MINUTES') {
-                    script {
-                      waitForQualityGate abortPipeline: true
-                    }
-                  }
-          }     
+            sh "mvn dependency-check:check"
+          }
+          post {
+            always {
+              dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
+            }
+          }
         }
         stage('docker build') {
           steps {
